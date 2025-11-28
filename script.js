@@ -1,4 +1,4 @@
-const wordInput = document.getElementById('wordInput');
+const searchInput = document.getElementById('wordInput');
 const searchBtn = document.getElementById('searchBtn');
 const randomBtn = document.getElementById('randomBtn');
 const resultsArea = document.getElementById('resultsArea');
@@ -52,7 +52,7 @@ const renderFavorites = () => {
         const item = document.createElement('div');
         item.className = 'fav-item';
         item.innerHTML = `
-            <span class="fav-word" onclick="wordInput.value='${fav.word}'; searchWord('${fav.word}')">${fav.word}</span>
+            <span class="fav-word" onclick="searchInput.value='${fav.word}'; searchWord('${fav.word}')">${fav.word}</span>
             <span class="fav-gender ${fav.genre}">${fav.genre === 'm' ? 'M' : 'F'}</span>
             <button class="remove-fav" onclick="event.stopPropagation(); toggleFavorite({word: '${fav.word}'})">&times;</button>
         `;
@@ -85,7 +85,7 @@ const loadRecentSearches = () => {
         tag.className = 'recent-tag';
         tag.textContent = word;
         tag.onclick = () => {
-            wordInput.value = word;
+            searchInput.value = word;
             searchWord(word);
         };
         recentSearchesContainer.appendChild(tag);
@@ -433,5 +433,8 @@ quizOptions.forEach(btn => {
 
 themeToggle.addEventListener('click', toggleTheme);
 
-// Make playAudio global so onclick works
+// Make functions global so onclick works
 window.playAudio = playAudio;
+window.searchWord = searchWord;
+window.toggleFavorite = toggleFavorite;
+window.searchInput = searchInput;
