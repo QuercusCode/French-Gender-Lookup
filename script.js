@@ -189,16 +189,26 @@ const getRandomWord = async () => {
 const loadDictionary = async () => {
     try {
         console.log('Fetching words.json...');
-        const response = await fetch('words.json');
+        searchBtn.textContent = 'Loading...';
+        searchBtn.disabled = true;
+
+        // Use relative path explicitly
+        const response = await fetch('./words.json');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         wordData = await response.json();
         window.wordData = wordData; // Expose for debugging
         console.log('Dictionary loaded:', Object.keys(wordData).length, 'words');
+
+        searchBtn.textContent = 'Search';
+        searchBtn.disabled = false;
+        showToast('Dictionary loaded successfully!');
     } catch (error) {
         console.error('Failed to load dictionary:', error);
-        showToast('Error loading dictionary. Please refresh.');
+        searchBtn.textContent = 'Error';
+        alert('Failed to load dictionary. Please check your internet connection or try refreshing the page.\nError: ' + error.message);
+        showToast('Error loading dictionary.');
     }
 };
 
