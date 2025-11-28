@@ -7,6 +7,7 @@ const favoritesArea = document.getElementById('favoritesArea');
 const favoritesList = document.getElementById('favoritesList');
 const favBtn = document.getElementById('favBtn');
 const closeFavBtn = document.getElementById('closeFavBtn');
+const themeToggle = document.getElementById('themeToggle');
 let wordData = {};
 
 // --- Favorites Logic ---
