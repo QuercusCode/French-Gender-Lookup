@@ -62,7 +62,7 @@ const loadData = () => {
 
 loadData();
 
-app.use(express.static('public'));
+app.use(express.static('.'));
 
 app.get('/api/lookup', async (req, res) => {
     const word = req.query.word;

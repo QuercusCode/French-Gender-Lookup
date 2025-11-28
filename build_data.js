@@ -3,7 +3,7 @@ const path = require('path');
 const { parse } = require('csv-parse');
 
 const lexiquePath = path.join(__dirname, 'Lexique383.tsv');
-const outputPath = path.join(__dirname, 'public', 'words.json');
+const outputPath = path.join(__dirname, 'words.json');
 
 const wordMap = {};
 
