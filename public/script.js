@@ -99,10 +99,11 @@ const saveRecentSearch = (word) => {
     // Keep only last 5
     if (recent.length > 5) recent.pop();
     localStorage.setItem('recentSearches', JSON.stringify(recent));
-    loadRecentSearches();
+    if (recentSearches.length > 5) recentSearches.pop();
+    localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
+    renderRecentSearches();
 };
 
-// --- Audio Logic ---
 // --- Audio Logic ---
 const playAudio = (text) => {
     // Try Google Translate TTS first for better quality
@@ -119,123 +120,84 @@ const playAudio = (text) => {
 
 // --- Search Logic ---
 const searchWord = async (queryWord = null) => {
-    const word = queryWord || wordInput.value.trim();
+    const word = queryWord || searchInput.value.trim();
     if (!word) return;
 
     // Clear previous results
     resultsArea.innerHTML = '';
     resultsArea.classList.remove('hidden');
 
-    try {
-        const response = await fetch(`/api/lookup?word=${encodeURIComponent(word)}`);
-        const data = await response.json();
+    // Client-side lookup
+    const lowerWord = word.toLowerCase();
+    const gender = wordData[lowerWord];
 
-        if (data.found) {
-            saveRecentSearch(word); // Save successful search
+    if (gender) {
+        const result = {
+            word: word, // Use original casing for display
+            genre: gender
+        };
 
-            data.results.forEach((result, index) => {
-                const card = document.createElement('div');
-                card.className = `result-card ${result.genre === 'm' ? 'masculine' : 'feminine'}`;
-                card.style.animationDelay = `${index * 0.1}s`;
+        addToRecent(word); // Save successful search
 
-                const genderClass = result.genre === 'm' ? 'gender-m' : 'gender-f';
-                const genderText = result.genre === 'm' ? 'Masculine' : 'Feminine';
+        const card = document.createElement('div');
+        card.className = `result-card ${result.genre === 'm' ? 'masculine' : 'feminine'}`;
+        card.setAttribute('data-word', result.word);
 
-                // Grammatical Category Mapping
-                const cgramMap = {
-                    'NOM': 'Noun',
-                    'ADJ': 'Adjective',
-                    'ADV': 'Adverb',
-                    'VER': 'Verb',
-                    'AUX': 'Auxiliary',
-                    'ONO': 'Onomatopoeia',
-                    'PRE': 'Preposition',
-                    'ART:def': 'Definite Article',
-                    'ART:ind': 'Indefinite Article',
-                    'PRO:per': 'Personal Pronoun',
-                    'PRO:dem': 'Demonstrative Pronoun',
-                    'PRO:ind': 'Indefinite Pronoun',
-                    'PRO:int': 'Interrogative Pronoun',
-                    'PRO:pos': 'Possessive Pronoun',
-                    'PRO:rel': 'Relative Pronoun',
-                    'CON': 'Conjunction',
-                    'LIA': 'Liaison'
-                };
-                const fullCgram = cgramMap[result.cgram] || result.cgram;
+        const genderClass = result.genre === 'm' ? 'gender-m' : 'gender-f';
+        const genderText = result.genre === 'm' ? 'Masculine' : 'Feminine';
 
-                // Frequency Badge Logic
-                let freqBadge = '';
-                if (result.freq > 50) {
-                    freqBadge = '<span class="badge badge-common">Common</span>';
-                } else if (result.freq > 5) {
-                    freqBadge = '<span class="badge badge-uncommon">Uncommon</span>';
-                } else if (result.freq !== undefined && result.freq <= 5) {
-                    freqBadge = '<span class="badge badge-rare">Rare</span>';
-                }
-
-                // Plurality Logic
-                let numberInfo = '';
-                if (result.nombre === 'p') {
-                    numberInfo = '• Plural';
-                } else if (result.nombre === 's') {
-                    numberInfo = '• Singular';
-                }
-
-                // Phonetics
-                const phonetics = result.phon ? `<span class="phonetics">/${result.phon}/</span>` : '';
-
-                card.innerHTML = `
-                    <div class="word-info">
-                        <div class="word-header">
-                            <span class="word-main">${result.word}</span>
-                            <button class="audio-btn" onclick="playAudio('${result.word}')" title="Listen">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
-                            </button>
-                            ${phonetics}
-                        </div>
-                        <div class="word-details">${fullCgram} ${numberInfo}</div>
-                        <div class="word-meta">
-                            ${freqBadge}
-                        </div>
-                    </div>
-                    <div class="gender-badge ${genderClass}">${genderText}</div>
-                    <button class="fav-btn" onclick="toggleFavorite({word: '${result.word}', genre: '${result.genre}'})" title="Toggle Favorite">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="${isFavorite(result.word) ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: ${isFavorite(result.word) ? '#e74c3c' : 'currentColor'}">
-                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                        </svg>
+        // Simplified display based on new client-side data structure
+        card.innerHTML = `
+            <div class="word-info">
+                <div class="word-header">
+                    <span class="word-main">${result.word}</span>
+                    <button class="audio-btn" onclick="playAudio('${result.word}')" title="Listen">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
                     </button>
-                `;
-                card.setAttribute('data-word', result.word);
-                resultsArea.appendChild(card);
-            });
-        } else {
-            resultsArea.innerHTML = `
-                <div class="result-card">
-                    <div class="no-result">No results found for "${word}".</div>
                 </div>
-            `;
-        }
-    } catch (error) {
-        console.error('Error fetching data:', error);
+                <div class="word-details"></div>
+                <div class="word-meta"></div>
+            </div>
+            <div class="gender-badge ${genderClass}">${genderText}</div>
+            <button class="fav-btn" onclick="toggleFavorite('${result.word}', '${result.genre}')" title="Toggle Favorite">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="${isFavorite(result.word) ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: ${isFavorite(result.word) ? '#e74c3c' : 'currentColor'}">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+            </button>
+        `;
+        resultsArea.appendChild(card);
+    } else {
         resultsArea.innerHTML = `
             <div class="result-card">
-                <div class="no-result">An error occurred. Please try again.</div>
+                <div class="no-result">No results found for "${word}".</div>
             </div>
         `;
     }
 };
 
 const getRandomWord = async () => {
+    const keys = Object.keys(wordData);
+    if (keys.length > 0) {
+        const randomWord = keys[Math.floor(Math.random() * keys.length)];
+        searchInput.value = randomWord;
+        searchWord(randomWord);
+    }
+};
+
+// Load Dictionary Data
+const loadDictionary = async () => {
     try {
-        const response = await fetch('/api/random');
-        const data = await response.json();
-        if (data.found && data.results.length > 0) {
-            const word = data.results[0].word;
-            wordInput.value = word;
-            searchWord(word);
+        console.log('Fetching words.json...');
+        const response = await fetch('words.json');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+        wordData = await response.json();
+        window.wordData = wordData; // Expose for debugging
+        console.log('Dictionary loaded:', Object.keys(wordData).length, 'words');
     } catch (error) {
-        console.error('Error fetching random word:', error);
+        console.error('Failed to load dictionary:', error);
+        showToast('Error loading dictionary. Please refresh.');
     }
 };
 
@@ -243,7 +205,7 @@ const getRandomWord = async () => {
 searchBtn.addEventListener('click', () => searchWord());
 randomBtn.addEventListener('click', getRandomWord);
 
-wordInput.addEventListener('keypress', (e) => {
+searchInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
         searchWord();
     }
@@ -321,17 +283,18 @@ const nextQuizQuestion = async () => {
     });
     quizWordEl.textContent = 'Loading...';
 
-    try {
-        const response = await fetch('/api/random');
-        const data = await response.json();
-        if (data.found && data.results.length > 0) {
-            currentQuizWord = data.results[0];
-            quizWordEl.textContent = currentQuizWord.word;
-        } else {
-            quizWordEl.textContent = 'Error loading word.';
-        }
-    } catch (error) {
-        console.error('Quiz error:', error);
+    // Client-side random word
+    const keys = Object.keys(wordData);
+    if (keys.length > 0) {
+        const randomWord = keys[Math.floor(Math.random() * keys.length)];
+        const gender = wordData[randomWord];
+
+        currentQuizWord = {
+            word: randomWord,
+            genre: gender
+        };
+        quizWordEl.textContent = currentQuizWord.word;
+    } else {
         quizWordEl.textContent = 'Error loading word.';
     }
 };
@@ -397,12 +360,9 @@ const checkAnswer = (selectedGender) => {
 };
 
 // --- Theme Logic ---
-const themeToggle = document.getElementById('themeToggle');
-const body = document.body;
-
 const toggleTheme = () => {
-    body.classList.toggle('dark-mode');
-    const isDark = body.classList.contains('dark-mode');
+    document.body.classList.toggle('dark-mode');
+    const isDark = document.body.classList.contains('dark-mode');
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
     updateThemeIcon(isDark);
 };
