@@ -101,9 +101,7 @@ const saveRecentSearch = (word) => {
     // Keep only last 5
     if (recent.length > 5) recent.pop();
     localStorage.setItem('recentSearches', JSON.stringify(recent));
-    if (recentSearches.length > 5) recentSearches.pop();
-    localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
-    renderRecentSearches();
+    loadRecentSearches();
 };
 
 // --- Audio Logic ---
@@ -141,7 +139,7 @@ const searchWord = async (queryWord = null) => {
             genre: gender
         };
 
-        addToRecent(word); // Save successful search
+        saveRecentSearch(word); // Save successful search
 
         const card = document.createElement('div');
         card.className = `result-card ${result.genre === 'm' ? 'masculine' : 'feminine'}`;
