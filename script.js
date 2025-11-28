@@ -131,6 +131,8 @@ const searchWord = async (queryWord = null) => {
     // Client-side lookup
     const lowerWord = word.toLowerCase();
     const gender = wordData[lowerWord];
+    console.log(`Searching for: "${word}" (lower: "${lowerWord}")`);
+    console.log(`Lookup result:`, gender);
 
     if (gender) {
         const result = {
