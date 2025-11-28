@@ -194,6 +194,7 @@ const loadDictionary = async () => {
 
         // Use relative path explicitly
         const response = await fetch('./words.json');
+        console.log('Fetch response status:', response.status, 'ok:', response.ok);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
