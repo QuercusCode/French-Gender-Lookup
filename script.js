@@ -7,6 +7,7 @@ const favoritesArea = document.getElementById('favoritesArea');
 const favoritesList = document.getElementById('favoritesList');
 const favBtn = document.getElementById('favBtn');
 const closeFavBtn = document.getElementById('closeFavBtn');
+let wordData = {};
 
 // --- Favorites Logic ---
 let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
@@ -392,6 +393,7 @@ const loadTheme = () => {
 loadTheme();
 loadRecentSearches();
 renderFavorites();
+loadDictionary();
 
 // Favorites UI Handlers
 favBtn.addEventListener('click', () => {
