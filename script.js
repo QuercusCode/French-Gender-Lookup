@@ -395,7 +395,7 @@ const updateThemeIcon = (isDark) => {
 const loadTheme = () => {
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark') {
-        body.classList.add('dark-mode');
+        document.body.classList.add('dark-mode');
         updateThemeIcon(true);
     } else {
         updateThemeIcon(false);
