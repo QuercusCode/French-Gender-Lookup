@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>French Gender Lookup</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="background-mesh"></div>
+    <main class="container">
+        <div class="glass-card">
+            <header>
+                <div class="top-controls">
+                    <button id="themeToggle" class="icon-btn" title="Toggle Dark Mode">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                    <button id="quizBtn" class="icon-btn" title="Quiz Mode">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                    </button>
+                    <button id="favBtn" class="icon-btn" title="View Favorites">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                            </path>
+                        </svg>
+                    </button>
+                </div>
+                <h1>French Gender Lookup</h1>
+                <p>Instantly find the gender of any French word.</p>
+            </header>
+
+            <div class="search-box">
+                <input type="text" id="wordInput" placeholder="Enter a French word..." autocomplete="off">
+                <button id="searchBtn" class="action-btn" title="Search">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </button>
+                <button id="randomBtn" class="action-btn" title="Random Word">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
+                    </svg>
+                </button>
+            </div>
+
+            <div id="recentSearches" class="recent-searches">
+                <!-- Recent searches will be injected here -->
+            </div>
+
+            <div id="resultsArea" class="results-area hidden">
+                <!-- Results will be injected here -->
+            </div>
+
+            <div id="favoritesArea" class="favorites-area hidden">
+                <h3>My Favorites</h3>
+                <div id="favoritesList" class="favorites-list"></div>
+                <button id="closeFavBtn" class="text-btn">Close</button>
+            </div>
+        </div>
+
+        <!-- Quiz Modal -->
+        <div id="quizModal" class="modal hidden">
+            <div class="modal-content glass-card">
+                <button id="closeQuizBtn" class="close-modal">&times;</button>
+
+                <div class="quiz-header">
+                    <div class="quiz-stats-top">
+                        <div class="lives-container" id="livesContainer">
+                            <span class="heart">❤️</span><span class="heart">❤️</span><span class="heart">❤️</span>
+                        </div>
+                        <div class="level-badge" id="levelBadge">Lvl 1 Novice</div>
+                    </div>
+                    <div class="xp-bar-container">
+                        <div class="xp-fill" id="xpFill" style="width: 0%"></div>
+                        <div class="xp-text" id="xpText">0 / 100 XP</div>
+                    </div>
+                </div>
+
+                <h2>Gender Quiz</h2>
+                <div class="quiz-score">Streak: <span id="streakCount">0</span></div>
+                <div id="quizCard" class="quiz-card">
+                    <div class="quiz-word" id="quizWord">Loading...</div>
+                    <div class="quiz-options">
+                        <button class="quiz-option m-btn" data-gender="m">Masculine</button>
+                        <button class="quiz-option f-btn" data-gender="f">Feminine</button>
+                    </div>
+                    <div id="quizFeedback" class="quiz-feedback"></div>
+                </div>
+                <button id="nextQuizBtn" class="action-btn hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
