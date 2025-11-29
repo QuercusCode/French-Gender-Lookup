@@ -139,11 +139,10 @@ const searchWord = async (queryWord = null) => {
             genre: gender
         };
 
-        saveRecentSearch(word); // Save successful search
-
         const card = document.createElement('div');
         card.className = `result-card ${result.genre === 'm' ? 'masculine' : 'feminine'}`;
         card.setAttribute('data-word', result.word);
+        card.style.opacity = '1'; // Force visibility in case animation fails
 
         const genderClass = result.genre === 'm' ? 'gender-m' : 'gender-f';
         const genderText = result.genre === 'm' ? 'Masculine' : 'Feminine';
@@ -168,6 +167,13 @@ const searchWord = async (queryWord = null) => {
             </button>
         `;
         resultsArea.appendChild(card);
+        console.log('Result card appended to DOM');
+
+        try {
+            saveRecentSearch(word); // Save successful search
+        } catch (e) {
+            console.error('Error saving recent search:', e);
+        }
     } else {
         resultsArea.innerHTML = `
             <div class="result-card">
