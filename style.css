@@ -262,6 +262,22 @@ input::placeholder {
     letter-spacing: -0.5px;
 }
 
+.word-type {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    font-style: italic;
+    background: rgba(0, 0, 0, 0.05);
+    padding: 2px 8px;
+    border-radius: 6px;
+}
+
+.word-translation {
+    font-size: 1.2rem;
+    color: var(--text-main);
+    margin-top: 4px;
+    font-weight: 400;
+}
+
 /* Audio Button */
 .audio-btn {
     background: none;

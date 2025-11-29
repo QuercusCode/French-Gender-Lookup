@@ -21,6 +21,19 @@ const isFavorite = (word) => {
     return favorites.some(f => f.word.toLowerCase() === word.toLowerCase());
 };
 
+const fetchTranslation = async (word) => {
+    try {
+        const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=fr|en`);
+        const data = await response.json();
+        if (data && data.responseData) {
+            return data.responseData.translatedText;
+        }
+    } catch (error) {
+        console.error('Translation failed:', error);
+    }
+    return null;
+};
+
 const toggleFavorite = (wordData) => {
     const index = favorites.findIndex(f => f.word.toLowerCase() === wordData.word.toLowerCase());
     if (index === -1) {
@@ -129,14 +142,18 @@ const searchWord = async (queryWord = null) => {
 
     // Client-side lookup
     const lowerWord = word.toLowerCase();
-    const gender = wordData[lowerWord];
+    const entry = wordData[lowerWord];
     console.log(`Searching for: "${word}" (lower: "${lowerWord}")`);
-    console.log(`Lookup result:`, gender);
+    console.log(`Lookup result:`, entry);
 
-    if (gender) {
+    if (entry) {
+        const gender = typeof entry === 'object' ? entry.g : entry; // Handle both old and new format temporarily
+        const type = typeof entry === 'object' ? entry.t : 'Noun'; // Default to Noun if missing
+
         const result = {
             word: word, // Use original casing for display
-            genre: gender
+            genre: gender,
+            type: type
         };
 
         const card = document.createElement('div');
@@ -147,15 +164,21 @@ const searchWord = async (queryWord = null) => {
         const genderClass = result.genre === 'm' ? 'gender-m' : 'gender-f';
         const genderText = result.genre === 'm' ? 'Masculine' : 'Feminine';
 
+        // Fetch translation
+        const translation = await fetchTranslation(result.word);
+        const translationHtml = translation ? `<div class="word-translation">${translation}</div>` : '';
+
         // Simplified display based on new client-side data structure
         card.innerHTML = `
             <div class="word-info">
                 <div class="word-header">
                     <span class="word-main">${result.word}</span>
+                    <span class="word-type">${result.type}</span>
                     <button class="audio-btn" onclick="playAudio('${result.word}')" title="Listen">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
                     </button>
                 </div>
+                ${translationHtml}
                 <div class="word-details"></div>
                 <div class="word-meta"></div>
             </div>
@@ -306,7 +329,8 @@ const nextQuizQuestion = async () => {
     const keys = Object.keys(wordData);
     if (keys.length > 0) {
         const randomWord = keys[Math.floor(Math.random() * keys.length)];
-        const gender = wordData[randomWord];
+        const entry = wordData[randomWord];
+        const gender = typeof entry === 'object' ? entry.g : entry;
 
         currentQuizWord = {
             word: randomWord,

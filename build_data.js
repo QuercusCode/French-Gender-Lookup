@@ -17,14 +17,31 @@ fs.createReadStream(lexiquePath)
 
         // Only keep words with a valid gender (m or f)
         if (word && (gender === 'm' || gender === 'f')) {
-            // If word exists, prioritize masculine/feminine if it differs? 
-            // For simplicity, we'll overwrite or keep first. 
-            // Lexique might have duplicates for homographs.
-            // Let's store it. If it's already there, we might want to handle it, 
-            // but for a simple lookup, the last one wins or we check if it's the same.
+            let type = row.cgram || '';
 
+            // Map common abbreviations
+            const typeMap = {
+                'NOM': 'Noun',
+                'ADJ': 'Adjective',
+                'VER': 'Verb',
+                'ADV': 'Adverb',
+                'PRE': 'Preposition',
+                'PRO': 'Pronoun',
+                'CON': 'Conjunction',
+                'ART': 'Article',
+                'ONO': 'Onomatopoeia',
+                'INT': 'Interjection'
+            };
+
+            // Use mapped type or original if not found (title case)
+            type = typeMap[type] || type.charAt(0).toUpperCase() + type.slice(1).toLowerCase();
+
+            // Store object with gender and type
             // Optimization: Lowercase key for case-insensitive lookup
-            wordMap[word.toLowerCase()] = gender;
+            wordMap[word.toLowerCase()] = {
+                g: gender,
+                t: type
+            };
         }
     })
     .on('end', () => {
